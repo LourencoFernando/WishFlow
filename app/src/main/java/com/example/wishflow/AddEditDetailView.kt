@@ -32,10 +32,10 @@ fun AddEditWishView(
 ) {
     Scaffold(
         topBar = {
-            AppBarView(title =
-            if (id == -1L) "Add Wish" else "Edit Wish") {
-                // navController.popBackStack()
-            }
+            AppBarView(
+                title = if (id == 0L) "Add Wish" else "Edit Wish",
+                onBackNavClicked = { navController.navigateUp() }
+            )
         }
     ) {
         Column(

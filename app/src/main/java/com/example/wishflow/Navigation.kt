@@ -17,7 +17,14 @@ fun Navigation(
         startDestination = Screen.HomeScreen.route
     ) {
         composable(route = Screen.HomeScreen.route) {
-            HomeView()
+            HomeView(navController, viewModel)
+        }
+        composable(route = Screen.WishScreen.route) {
+            AddEditWishView(
+                id = 0L,
+                viewModel = viewModel,
+                navController = navController
+            )
         }
     }
 }
