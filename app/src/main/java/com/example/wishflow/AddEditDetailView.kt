@@ -1,6 +1,5 @@
 package com.example.wishflow
 
-import android.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +12,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +27,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.wishflow.data.Wish
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddEditWishView(
@@ -30,7 +36,13 @@ fun AddEditWishView(
     viewModel: WishViewModel,
     navController: NavController,
 ) {
+
+    val snackMessage = remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             AppBarView(
                 title = if (id == 0L) "Add Wish" else "Edit Wish",
@@ -70,9 +82,26 @@ fun AddEditWishView(
             Button(onClick = {
                 if (viewModel.wishTitleState.isNotEmpty()
                     && viewModel.wishDescriptionState.isNotEmpty()) {
-                    // TODO Update wish
+
+                    if (id != 0L) {
+                        // TODO Update wish
+                    } else {
+                        // TODO Add wish
+                        viewModel.insertWish(
+                            Wish(
+                                title = viewModel.wishTitleState.trim(),
+                                description = viewModel.wishDescriptionState.trim()
+                            )
+                        )
+                        snackMessage.value = "Wish Added"
+                    }
                 } else {
-                    // TODO Add wish
+                   snackMessage.value = "Please fill in all fields"
+                }
+
+                scope.launch {
+                    snackbarHostState.showSnackbar(snackMessage.value)
+                    navController.navigateUp()
                 }
             }) {
                 Text(
