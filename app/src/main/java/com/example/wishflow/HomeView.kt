@@ -15,7 +15,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -61,11 +64,27 @@ fun HomeView(
                 .fillMaxSize()
                 .padding(it)
         ) {
-            items(wishes.value) { wish ->
-                WishItem(wish = wish) {
-                    val id = wish.id
-                    navController.navigate(Screen.WishScreen.route + "/$id")
-                }
+            items(wishes.value, key = { wish -> wish.id }) { wish ->
+                val dismissState = rememberSwipeToDismissBoxState(
+                    confirmValueChange = {
+                        if (it == SwipeToDismissBoxValue.StartToEnd || it == SwipeToDismissBoxValue.EndToStart) {
+                            viewModel.deleteWish(wish)
+                        }
+                        true
+                    },
+                    positionalThreshold = { it * 0.25f }
+                )
+
+                SwipeToDismissBox(
+                    state = dismissState,
+                    backgroundContent = {},
+                    content = {
+                        WishItem(wish = wish) {
+                            val id = wish.id
+                            navController.navigate(Screen.WishScreen.route + "/$id")
+                        }
+                    }
+                )
             }
         }
     }
